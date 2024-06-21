@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import sys
 
 def scrap_dress_page(url):
     
@@ -71,8 +72,7 @@ def scrap_dress_page(url):
 
     return data_dict
 
-if __name__ == "__main__":
-    url_father='https://en.gb.scalperscompany.com/collections/woman-new-collection-skirts-2060'
+def colection_page(url_father):
     response = requests.get(url_father)
     soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -92,3 +92,8 @@ if __name__ == "__main__":
     with open('scraped_data.json', 'a') as f:
         json.dump(scraped_results, f, indent=4)
         f.write('\n')
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        colection_page(sys.argv[1])
+    else:
+        colection_page('https://en.gb.scalperscompany.com/collections/woman-new-collection-skirts-2060')
