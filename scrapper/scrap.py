@@ -72,12 +72,7 @@ def scrap_dress_page(url):
 
     return data_dict
 
-def colection_page(url_father):
-    response = requests.get(url_father)
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    # Find all <a> elements that have the specified class and href starting with '/products/'
-    product_links = soup.find_all('a', class_='ProductItem__ImageWrapper', href=lambda href: href and href.startswith('/products/'))
+def colection_page(url_father,product_links):
     scraped_results=[]
     # Iterate over each found link
     for link in product_links:
@@ -92,8 +87,25 @@ def colection_page(url_father):
     with open('scraped_data.json', 'a') as f:
         json.dump(scraped_results, f, indent=4)
         f.write('\n')
+
+def paguination(url_base):
+    productos = []
+    page = 1
+    while True:
+        params = {"page": page}
+        response = requests.get(url_base, params=params)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        productos_pagina = soup.find_all('a', class_='ProductItem__ImageWrapper', href=lambda href: href and href.startswith('/products/'))
+        if not productos_pagina:
+            break
+        
+        productos.extend(productos_pagina)
+        page += 1
+        
+    colection_page(url_base,productos)
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        colection_page(sys.argv[1])
+        paguination(sys.argv[1])
     else:
-        colection_page('https://en.gb.scalperscompany.com/collections/woman-new-collection-skirts-2060')
+        paguination('https://en.gb.scalperscompany.com/collections/woman-new-collection-skirts-2060')
